@@ -9,17 +9,17 @@
 Omarchy 换壁纸按**主题**走。背景选择器 / `omarchy theme bg next` 会遍历两个目录（见 `omarchy-theme-bg-switcher` / `omarchy-theme-bg-next`）：
 
 1. `~/.local/state/omarchy/current/theme/backgrounds` — 当前主题自带的图
-2. `~/.config/omarchy/backgrounds/<当前主题>` — 你的**用户覆盖目录**
+2. `~/.config/omarchy/backgrounds/<当前主题>` — 用户级背景目录
 
-Omarchy 官方会让每个主题各自带一小撮图。这套方案相反：**在 `~/.config/omarchy/backgrounds/<主题>` 建一条软链，指出去、统一指向你自己的壁纸库**（默认 `~/Pictures/wallpapers`）。软链只是"指出去看你的库"，不复制任何图。于是不管切到哪个主题，背景选择器翻到的都是你自己攒的那堆图。
+Omarchy 官方会让每个主题各自带一小撮图。这套方案相反：**在 `~/.config/omarchy/backgrounds/<主题>` 建一条软链，指出去、统一指向同一个壁纸库目录**（默认 `~/Pictures/wallpapers`）。软链只是"指出去看那个目录"，不复制任何图。于是不管切到哪个主题，背景选择器翻到的都是同一个壁纸库里的图。
 
 ```
-~/.config/omarchy/backgrounds/          （这里是软链的落点，只是目录名，不含图）
-   ├── tonal-spot   →  ~/Pictures/wallpapers    软链，指出去
-   ├── expressive   →  ~/Pictures/wallpapers    软链，指出去
-   └── …            →  （指向同一处）
+~/.config/omarchy/backgrounds/           这里是软链的落点
+   ├── tonal-spot   →  ~/Pictures/wallpapers    (软链)
+   ├── expressive   →  ~/Pictures/wallpapers    (软链)
+   └── …
 
-~/Pictures/wallpapers                   ← 你的壁纸库，唯一真身（76 张…随你加）
+~/Pictures/wallpapers                    壁纸库，所有软链都指向它
 ```
 
 选中的图由 Omarchy 自己写进状态软链 `~/.local/state/omarchy/current/background`，桌面 / 锁屏 / 登录界面随它同步——这套是 Omarchy 原生行为，不归本仓库管。
