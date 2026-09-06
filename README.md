@@ -2,29 +2,27 @@
 
 把你的**自定义壁纸库**接到 Omarchy——让主题的背景选择器能从你自己的壁纸库换图，而不是只能翻各主题自带的几张。
 
-不含壁纸图、不含取色/matugen。只做一件事：**把每个主题的背景目录软链到你自己的壁纸库**。
+不含壁纸图、不含取色/matugen。只做一件事：**把 `~/.config/omarchy/backgrounds/<主题>` 建成软链，指向你自己的壁纸库**。
 
-## 你的机器现在是怎么存的
+## 原理：Omarchy 怎么找背景图
 
 Omarchy 换壁纸按**主题**走。背景选择器 / `omarchy theme bg next` 会遍历两个目录（见 `omarchy-theme-bg-switcher` / `omarchy-theme-bg-next`）：
 
 1. `~/.local/state/omarchy/current/theme/backgrounds` — 当前主题自带的图
 2. `~/.config/omarchy/backgrounds/<当前主题>` — 你的**用户覆盖目录**
 
-Omarchy 官方会让每个主题各自带一小撮图。这套方案相反：**把 `~/.config/omarchy/backgrounds/<每个主题>` 设成软链，统一指向你自己的壁纸库**（默认 `~/Pictures/wallpapers`）。于是不管切到哪个主题，背景选择器翻到的都是你自己攒的那堆图。
+Omarchy 官方会让每个主题各自带一小撮图。这套方案相反：**在 `~/.config/omarchy/backgrounds/<主题>` 建一条软链，指出去、统一指向你自己的壁纸库**（默认 `~/Pictures/wallpapers`）。软链只是"指出去看你的库"，不复制任何图。于是不管切到哪个主题，背景选择器翻到的都是你自己攒的那堆图。
 
 ```
-~/Pictures/wallpapers                ← 你的壁纸库（唯一真身，76 张…随你加）
-   └── 由 setup.sh 软链给每个主题 ↓
-~/.config/omarchy/backgrounds/
-   ├── tonal-spot  → ~/Pictures/wallpapers   （软链）
-   ├── expressive → ~/Pictures/wallpapers   （软链）
-   └── ...
+~/.config/omarchy/backgrounds/          （这里是软链的落点，只是目录名，不含图）
+   ├── tonal-spot   →  ~/Pictures/wallpapers    软链，指出去
+   ├── expressive   →  ~/Pictures/wallpapers    软链，指出去
+   └── …            →  （指向同一处）
+
+~/Pictures/wallpapers                   ← 你的壁纸库，唯一真身（76 张…随你加）
 ```
 
-选中的图由 Omarchy 自己写进状态软链 `~/.local/state/omarchy/current/background`，桌面 / 锁屏 / 登录界面随它同步——这套不归本仓库管，是 Omarchy 原生行为。
-
-> 注：本仓库自己运行时用的是绝对路径写死的软链（本机无所谓）。**发布版 setup.sh 不写死**——用 `$HOME` 加可配置路径，谁都能装。
+选中的图由 Omarchy 自己写进状态软链 `~/.local/state/omarchy/current/background`，桌面 / 锁屏 / 登录界面随它同步——这套是 Omarchy 原生行为，不归本仓库管。
 
 ## 安装（被使用者）
 
@@ -39,13 +37,17 @@ cd omarchy-wallpaper-aio
 ./setup.sh /path/to/my/wallpapers
 ```
 
-它只**新增软链**，不删不改你已有的真实目录（比如 `catppuccin` 那种自带一堆图的目录会被跳过），可反复运行。
+它只**新增软链**：对每一个**用户已安装的主题**（`~/.config/omarchy/themes/*`）在 `backgrounds/<主题>` 建软链。不删、不改任何真实目录；该目录已经是软链或已是真实目录的主题会被跳过，所以**可反复运行、不产生副作用**。
+
+> 注意：它只接"用户已装主题"。系统自带主题在 `/usr/share/omarchy/themes/`（如 `catppuccin`），除非你先 `omarchy theme install` 装一份到用户目录，否则 setup.sh 不会碰它们。
 
 装完：`omarchy theme bg next` 或背景选择器就能从你的壁纸库换图了。
 
-## 你的壁纸库在哪？
+## 前提：先有壁纸库
 
-仓库不含任何壁纸图。`setup.sh` 需要你本地已有壁纸库目录（默认 `~/Pictures/wallpapers`）。往里放图、或改传路径即可，`bg next` / 选择器会自动认到新增的图。
+本仓库**不含任何壁纸图**，只提供接线脚本。运行 `setup.sh` 前你本地要已有一个壁纸库目录（默认 `~/Pictures/wallpapers`，`./setup.sh` 没传路径时用它；也可 `./setup.sh /path/to/my/wallpapers` 换目录）。
+
+建好后往里放图即可，`bg next` / 背景选择器会自动认到新增的图，不需要重跑 setup。
 
 ## 脚本结构
 
